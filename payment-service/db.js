@@ -1,8 +1,13 @@
 import { MongoClient } from "mongodb";
-// Replace the placeholder with your Atlas connection string
-const uri = "mongodb://user:pass@127.0.0.1:27018";
+// payment service
+// both the container and host machine resolve mongodb-payment
+// the container uses Docker DNS, host uses /etc/hosts
+// /etc/hosts file has mongodb-payment which resolves to 127.0.0.1
+const uri =
+  "mongodb://mongodb-payment:27018/?replicaSet=rs-payment&directConnection=true";
+// ride service
+// const uri = "mongodb://127.0.0.1:27017/?replicaSet=rs-ride";
 
-// Create a MongoClient with a MongoClientOptions object to set the Stable API version
 const client = new MongoClient(uri);
 
 export async function runStableAPIConnect() {
@@ -11,14 +16,17 @@ export async function runStableAPIConnect() {
     await client.connect();
 
     // Send a ping to confirm a successful connection
-    const result = await client.db("admin").command({ ping: 1 });
+    const result = await client.db("payment").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!",
     );
     return result;
-  } finally {
+  } catch (err) {
     // Ensures that the client will close when you finish/error
+    console.log(err);
     await client.close();
   }
 }
-runStableAPIConnect().catch(console.dir);
+runStableAPIConnect();
+
+export default client;
