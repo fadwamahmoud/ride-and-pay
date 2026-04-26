@@ -9,7 +9,7 @@ const consumer = kafka.consumer({ groupId: "payment-group" });
 
 async function startConsumer() {
   await consumer.connect();
-  await consumer.subscribe({ topics: ["ride.completed"] });
+  await consumer.subscribe({ topics: ["payment.initiated"] });
 
   await consumer.run({
     eachMessage: async ({ topic, partition, message }) => {
